@@ -24,8 +24,8 @@ public class LoginSteps {
 
 	@When("user checks the login page title")
 	public void user_checks_the_login_page_title() {
-	    String title = loginPage.getLoginPageTitle();
-	    Assert.assertEquals(AppConstants.LOGIN_PAGE_TITLE, loginPage.getLoginPageTitle());
+	    String actualTitle = loginPage.getLoginPageTitle();
+	    Assert.assertEquals(AppConstants.LOGIN_PAGE_TITLE, actualTitle);
 	    
 	}
 
