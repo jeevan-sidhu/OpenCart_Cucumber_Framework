@@ -44,6 +44,7 @@ public class LoginPage {
 		elUtil.doSendKeys(username, userName, AppConstants.DEFAULT_MEDIUM_TIME_OUT);
 		elUtil.doSendKeys(password, pwd);
 		elUtil.doClick(loginBtn);
+		elUtil.waitForTitleContains(AppConstants.ACCOUNTS_PAGE_TITLE, AppConstants.DEFAULT_SHORT_TIME_OUT);
 		return new AccountsPage(driver);
 	}
 	

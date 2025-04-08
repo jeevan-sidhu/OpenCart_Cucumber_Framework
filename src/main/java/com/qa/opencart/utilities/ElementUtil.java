@@ -12,6 +12,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -48,7 +49,7 @@ public class ElementUtil {
 		element.clear();
 		element.sendKeys(value);
 	}
-	
+
 	public void doSendKeys(WebElement element, String value) {
 		element.clear();
 		element.sendKeys(value);
@@ -61,14 +62,13 @@ public class ElementUtil {
 	public void doSendKeys(By locator, CharSequence... value) {
 		getElement(locator).sendKeys(value);
 	}
-	
-	
+
 	private void checkElementHighlight(WebElement element) {
-		if(Boolean.parseBoolean(DriverFactory.isHighlight)) {
+		if (Boolean.parseBoolean(DriverFactory.isHighlight)) {
 			jsUtil.flash(element);
 		}
 	}
-	
+
 	public WebElement getElement(By locator) {
 		WebElement element = driver.findElement(locator);
 		checkElementHighlight(element);
@@ -320,7 +320,7 @@ public class ElementUtil {
 	 */
 	public WebElement waitForElementPresence(By locator, int timeOut) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeOut));
-		WebElement element =  wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+		WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 		checkElementHighlight(element);
 		return element;
 	}
@@ -348,27 +348,33 @@ public class ElementUtil {
 		checkElementHighlight(element);
 		return element;
 	}
-	
+
 	/**
 	 * wait for element visible on the page with fluent wait features
+	 * 
 	 * @param locator
 	 * @param timeOut
 	 * @param pollingTime
 	 * @return
 	 */
-	public WebElement waitForElementVisibleWithFluentFeeatures(By locator, int timeOut, int pollingTime) {		
-		Wait<WebDriver> wait =	new FluentWait<WebDriver>(driver)
-									.withTimeout(Duration.ofSeconds(timeOut))
-									.pollingEvery(Duration.ofSeconds(pollingTime))
-									.ignoring(NoSuchElementException.class)
-									.ignoring(StaleElementReferenceException.class)
-									.ignoring(ElementNotInteractableException.class)
-									.withMessage("=====element is not found======" + locator);
-		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));									
+	public WebElement waitForElementVisibleWithFluentFeatures(By locator, int timeOut, int pollingTime) {
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(timeOut))
+				.pollingEvery(Duration.ofSeconds(pollingTime)).ignoring(NoSuchElementException.class)
+				.ignoring(StaleElementReferenceException.class).ignoring(ElementNotInteractableException.class)
+				.withMessage("=====element is not found======" + locator);
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
-	
-	
-	
+
+	public WebElement waitFluentlyForElementVisible(By locator, int timeOut) {
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(timeOut))
+				.ignoring(NoSuchElementException.class).ignoring(StaleElementReferenceException.class)
+				.ignoring(WebDriverException.class)
+				.ignoring(ElementNotInteractableException.class)
+				.withMessage("=====element is not found======" + locator);
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		checkElementHighlight(element);
+		return element;
+	}
 
 	/**
 	 * An expectation for checking an element is visible and enabled such that you
@@ -390,9 +396,24 @@ public class ElementUtil {
 	 */
 	public List<WebElement> waitForElementsVisible(By locator, int timeOut) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeOut));
-		return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+		try {
+			return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+		} catch (Exception e) {
+			return List.of();
+		}
 	}
 	
+	public List<WebElement> waitFluentlyForElementsVisible(By locator, int timeOut) {
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(timeOut))
+				.ignoring(NoSuchElementException.class).ignoring(StaleElementReferenceException.class)
+				.ignoring(ElementNotInteractableException.class)
+				.withMessage("=====element is not found======" + locator);
+		try {
+			return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+		} catch (Exception e) {
+			return List.of();
+		}
+	}
 
 	/**
 	 * An expectation for checking that there is at least one element present on a
@@ -490,19 +511,14 @@ public class ElementUtil {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeOut));
 		return wait.until(ExpectedConditions.alertIsPresent());
 	}
-	
-	
+
 	public Alert waitForAlertUsingFluentWaitAndSwitch(int timeOut) {
-		
-		Wait<WebDriver> wait =	new FluentWait<WebDriver>(driver)
-								.withTimeout(Duration.ofSeconds(timeOut))
-								.ignoring(NoAlertPresentException.class)
-								.withMessage("====Js alert is not present===");
+
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(timeOut))
+				.ignoring(NoAlertPresentException.class).withMessage("====Js alert is not present===");
 		return wait.until(ExpectedConditions.alertIsPresent());
 
 	}
-	
-	
 
 	public String getAlertText(int timeOut) {
 		return waitForAlertAndSwitch(timeOut).getText();

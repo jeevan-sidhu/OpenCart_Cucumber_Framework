@@ -26,7 +26,7 @@ public class ResultsPage {
 	}
 
 	public int getSearchResultsCount() {
-		int resultCount = elUtil.waitForElementsVisible(results, AppConstants.DEFAULT_MEDIUM_TIME_OUT).size();
+		int resultCount = elUtil.waitForElementsVisible(results, AppConstants.DEFAULT_SHORT_TIME_OUT).size();
 		System.out.println("search result count ===> " + resultCount);
 		return resultCount;
 	}

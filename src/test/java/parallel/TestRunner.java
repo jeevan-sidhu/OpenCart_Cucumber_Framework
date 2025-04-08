@@ -13,7 +13,9 @@ import io.cucumber.junit.CucumberOptions;
 				"pretty",
 				"html:target/cucumber-reports.html"
 		},
-		monochrome = true
+//		tags = "@product",
+		monochrome = true,
+		dryRun = false
 )
 
 public class TestRunner {
